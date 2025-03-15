@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
-import { TEA_BASES } from "@/lib/constants";
-// Assuming TOPPINGS constant is defined elsewhere,  e.g., in constants.ts
-const TOPPINGS = [
-  { id: "1", color: "brown" },
-  { id: "2", color: "pink" },
-  { id: "3", color: "green" },
-  // Add other toppings here...
-]
-
+import { TEA_BASES, TOPPINGS } from "@/lib/constants";
 
 interface BobaTeaProps {
   base: typeof TEA_BASES[0];
@@ -37,12 +29,12 @@ export function BobaTea({
   const emotion = getEmotion();
 
   return (
-    <div className="relative w-40 h-72">
+    <div className="flex justify-center items-center">
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: [0, -5, 0] }}
         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-        className="relative w-full h-full"
+        className="relative w-40 h-72"
       >
         {/* Straw - Fully Visible Through Lid to the End of Glass */}
         {isOrdered && (
@@ -133,7 +125,9 @@ export function BobaTea({
             style={{
               width: "1.25rem",
               height: "1.25rem",
-              backgroundColor: toppings.length > 0 ? TOPPINGS.find(t => t.id === toppings[0])?.color || "#000" : base.color, //Fall back to base color if no topping selected
+              backgroundColor: toppings.length > 0 
+                ? TOPPINGS.find(t => t.id === toppings[0])?.color || "#000"
+                : "#3A3238",
               filter: "brightness(0.8)",
               bottom: `${10 + (i % 3) * 8}%`,
               left: `${20 + (i * 6)}%`
