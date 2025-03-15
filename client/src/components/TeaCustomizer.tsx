@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -10,6 +10,8 @@ import { ShareModal } from "./ShareModal";
 import { TEA_BASES, SPECIAL_COMBINATIONS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { TeaRecipe } from "@shared/schema";
 
 export function TeaCustomizer() {
   const [primaryBase, setPrimaryBase] = useState(TEA_BASES[0]);
@@ -20,7 +22,14 @@ export function TeaCustomizer() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSpecialCombo, setIsSpecialCombo] = useState(false);
   const [isOrdered, setIsOrdered] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch all recipes
+  const { data: recipes } = useQuery<TeaRecipe[]>({
+    queryKey: ['/api/recipes'],
+  });
 
   useEffect(() => {
     const currentBases = [primaryBase.id, secondaryBase?.id].filter(Boolean);
@@ -53,6 +62,13 @@ export function TeaCustomizer() {
       });
 
       setIsOrdered(true);
+      setShowCelebration(true);
+      queryClient.invalidateQueries({ queryKey: ['/api/recipes'] });
+
+      setTimeout(() => {
+        setShowCelebration(false);
+      }, 3000);
+
       toast({
         title: "🧋 Order Complete!",
         description: "Enjoy your bubble tea creation!",
@@ -68,6 +84,40 @@ export function TeaCustomizer() {
 
   return (
     <div className="space-y-6">
+      {showCelebration && (
+        <motion.div 
+          className="fixed inset-0 z-50 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-4 h-4"
+              initial={{
+                top: "50%",
+                left: "50%",
+                scale: 0
+              }}
+              animate={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                scale: [0, 1, 0],
+                rotate: [0, 360]
+              }}
+              transition={{
+                duration: 2,
+                delay: i * 0.1,
+                ease: "easeOut"
+              }}
+            >
+              <span className="text-2xl">🎉</span>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+
       <Card className="p-6">
         <div className="grid md:grid-cols-2 gap-6">
           <motion.div
@@ -179,6 +229,28 @@ export function TeaCustomizer() {
           setIsOrdered(false);
         }}
       />
+
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Creation History</h2>
+        <div className="space-y-4">
+          {recipes?.map((recipe) => (
+            <motion.div
+              key={recipe.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="p-4 rounded-lg border bg-card"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">{recipe.name}</h3>
+                <Badge variant="secondary">{recipe.likes} Likes</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {recipe.toppings.join(", ")} • {recipe.sweetness}% Sweet • {recipe.iceLevel}% Ice
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </Card>
 
       <div className="flex gap-4">
         <Button 
