@@ -10,16 +10,16 @@ interface IngredientsProps {
 export function Ingredients({ selectedToppings, onToppingsChange }: IngredientsProps) {
   const toggleTopping = (toppingId: string) => {
     if (selectedToppings.includes(toppingId)) {
-      onToppingsChange(selectedToppings.filter(id => id !== toppingId));
+      onToppingsChange([]);
     } else {
-      onToppingsChange([...selectedToppings, toppingId]);
+      onToppingsChange([toppingId]);
     }
   };
 
   return (
     <Card className="p-6">
-      <h3 className="font-medium mb-4">Add Toppings</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <h3 className="font-medium mb-4">Choose Your Topping</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {TOPPINGS.map((topping) => (
           <motion.button
             key={topping.id}

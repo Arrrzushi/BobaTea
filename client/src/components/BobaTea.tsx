@@ -1,5 +1,13 @@
 import { motion } from "framer-motion";
 import { TEA_BASES } from "@/lib/constants";
+// Assuming TOPPINGS constant is defined elsewhere,  e.g., in constants.ts
+const TOPPINGS = [
+  { id: "1", color: "brown" },
+  { id: "2", color: "pink" },
+  { id: "3", color: "green" },
+  // Add other toppings here...
+]
+
 
 interface BobaTeaProps {
   base: typeof TEA_BASES[0];
@@ -10,18 +18,20 @@ interface BobaTeaProps {
   isOrdered: boolean;
 }
 
-export function BobaTea({ 
+export function BobaTea({
   base,
   secondaryBase,
   toppings,
   sweetness,
   iceLevel,
-  isOrdered 
+  isOrdered
 }: BobaTeaProps) {
   // Determine emotion based on levels
   const getEmotion = () => {
-    if (sweetness > 75 || iceLevel > 75) return "excited";
-    if (sweetness < 25 || iceLevel < 25) return "relaxed";
+    if (sweetness > 75 && iceLevel > 75) return "super-excited";
+    if (sweetness > 75) return "sweet-happy";
+    if (iceLevel > 75) return "ice-happy";
+    if (sweetness < 25 || iceLevel < 25) return "sleepy";
     return "happy";
   };
   const emotion = getEmotion();
@@ -45,10 +55,10 @@ export function BobaTea({
         )}
 
         {/* Cup with Gradient Tea */}
-        <div 
+        <div
           className="absolute w-full h-full rounded-b-full border-4 border-gray-300 shadow-lg overflow-hidden"
           style={{
-            background: secondaryBase 
+            background: secondaryBase
               ? `linear-gradient(to bottom, ${base.color} 40%, ${secondaryBase.color})`
               : base.color
           }}
@@ -57,37 +67,54 @@ export function BobaTea({
         {/* Kawaii Face */}
         <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 z-30">
           {/* Eyes based on emotion */}
-          {emotion === "excited" ? (
+          {emotion === "super-excited" ? (
             <div className="flex flex-col items-center">
               <div className="flex gap-8">
-                <div className="w-3 h-px bg-black transform rotate-45"></div>
-                <div className="w-3 h-px bg-black transform rotate-45"></div>
-              </div>
-              <div className="flex gap-1 mt-1">
-                <div className="w-1 h-1 bg-yellow-400 rounded-full animate-pulse"></div>
-                <div className="w-1 h-1 bg-yellow-400 rounded-full animate-pulse delay-100"></div>
+                <div className="w-4 h-4">✨</div>
+                <div className="w-4 h-4">✨</div>
               </div>
             </div>
-          ) : emotion === "relaxed" ? (
+          ) : emotion === "sweet-happy" ? (
             <div className="flex gap-8">
-              <div className="w-3 h-px bg-black transform -translate-y-1"></div>
-              <div className="w-3 h-px bg-black transform -translate-y-1"></div>
+              <div className="w-4 h-4">♡</div>
+              <div className="w-4 h-4">♡</div>
+            </div>
+          ) : emotion === "ice-happy" ? (
+            <div className="flex gap-8">
+              <div className="w-4 h-4">❄️</div>
+              <div className="w-4 h-4">❄️</div>
+            </div>
+          ) : emotion === "sleepy" ? (
+            <div className="flex gap-8">
+              <div className="w-3 h-px bg-black transform -translate-y-1 rotate-12"></div>
+              <div className="w-3 h-px bg-black transform -translate-y-1 -rotate-12"></div>
             </div>
           ) : (
             <div className="flex gap-8">
-              <div className="w-3 h-3 bg-black rounded-full"></div>
-              <div className="w-3 h-3 bg-black rounded-full"></div>
+              <div className="w-3 h-3 bg-black rounded-full flex items-center justify-center">
+                <div className="w-1 h-1 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              </div>
+              <div className="w-3 h-3 bg-black rounded-full flex items-center justify-center">
+                <div className="w-1 h-1 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              </div>
             </div>
           )}
 
           {/* Mouth based on emotion */}
           <div className="mt-2">
-            {emotion === "excited" ? (
-              <div className="w-8 h-4 border-b-2 border-black mx-auto transform scale-y-150"></div>
-            ) : emotion === "relaxed" ? (
-              <div className="w-6 h-2 border-b-2 border-black mx-auto"></div>
+            {emotion === "super-excited" ? (
+              <div className="w-8 h-6 flex items-center justify-center">
+                <div className="w-6 h-4 border-b-4 border-black rounded-lg"></div>
+                <div className="absolute w-2 h-2 bg-pink-400 rounded-full transform translate-y-1"></div>
+              </div>
+            ) : emotion === "sweet-happy" ? (
+              <div className="w-6 h-4 border-b-2 border-black mx-auto" style={{ borderRadius: "0 0 100% 100%" }}></div>
+            ) : emotion === "ice-happy" ? (
+              <div className="w-6 h-3 border-2 border-black mx-auto rounded-full"></div>
+            ) : emotion === "sleepy" ? (
+              <div className="w-4 h-1 border-b-2 border-black mx-auto"></div>
             ) : (
-              <div className="w-6 h-3 border-b-2 border-black mx-auto"></div>
+              <div className="w-6 h-3 border-b-2 border-black mx-auto" style={{ borderRadius: "0 0 100% 100%" }}></div>
             )}
           </div>
 
@@ -106,8 +133,8 @@ export function BobaTea({
             style={{
               width: "1.25rem",
               height: "1.25rem",
-              backgroundColor: base.color,
-              filter: "brightness(0.6)",
+              backgroundColor: toppings.length > 0 ? TOPPINGS.find(t => t.id === toppings[0])?.color || "#000" : base.color, //Fall back to base color if no topping selected
+              filter: "brightness(0.8)",
               bottom: `${10 + (i % 3) * 8}%`,
               left: `${20 + (i * 6)}%`
             }}
