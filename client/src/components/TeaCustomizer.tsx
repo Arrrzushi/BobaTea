@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { DrinkCanvas } from "./DrinkCanvas";
+import { BobaTea } from "./BobaTea";
 import { Ingredients } from "./Ingredients";
 import { ShareModal } from "./ShareModal";
-import { TEA_BASES, SWEETNESS_LEVELS, ICE_LEVELS, SPECIAL_COMBINATIONS } from "@/lib/constants";
+import { TEA_BASES, SPECIAL_COMBINATIONS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -22,7 +22,6 @@ export function TeaCustomizer() {
   const [isOrdered, setIsOrdered] = useState(false);
   const { toast } = useToast();
 
-  // Check for special combinations
   useEffect(() => {
     const currentBases = [primaryBase.id, secondaryBase?.id].filter(Boolean);
     const hasSpecialCombo = SPECIAL_COMBINATIONS.some(combo => 
@@ -73,9 +72,9 @@ export function TeaCustomizer() {
         <div className="grid md:grid-cols-2 gap-6">
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="relative"
+            className="relative flex justify-center items-center"
           >
-            <DrinkCanvas
+            <BobaTea
               base={primaryBase}
               secondaryBase={secondaryBase}
               toppings={toppings}
