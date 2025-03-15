@@ -1,16 +1,37 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { TEA_BASES, TOPPINGS } from "@/lib/constants";
 
 interface DrinkCanvasProps {
   base: typeof TEA_BASES[0];
+  secondaryBase: typeof TEA_BASES[0] | null;
   toppings: string[];
   sweetness: number;
   iceLevel: number;
+  isOrdered?: boolean;
 }
 
-export function DrinkCanvas({ base, toppings, sweetness, iceLevel }: DrinkCanvasProps) {
+export function DrinkCanvas({ 
+  base, 
+  secondaryBase,
+  toppings, 
+  sweetness, 
+  iceLevel,
+  isOrdered = false 
+}: DrinkCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [emotion, setEmotion] = useState<'happy' | 'excited' | 'relaxed'>('happy');
+
+  useEffect(() => {
+    // Update emotion based on sweetness and ice level
+    if (sweetness > 75 || iceLevel > 75) {
+      setEmotion('excited');
+    } else if (sweetness < 25 || iceLevel < 25) {
+      setEmotion('relaxed');
+    } else {
+      setEmotion('happy');
+    }
+  }, [sweetness, iceLevel]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,88 +43,90 @@ export function DrinkCanvas({ base, toppings, sweetness, iceLevel }: DrinkCanvas
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw rounder cup with decorative elements
+    // Draw cup body (rounder and cuter)
     ctx.beginPath();
     ctx.moveTo(60, 50);
-    // Cup top rim
-    ctx.bezierCurveTo(60, 45, 140, 45, 140, 50);
-    // Right side
-    ctx.bezierCurveTo(150, 100, 155, 200, 150, 250);
-    // Bottom curve
-    ctx.bezierCurveTo(150, 260, 50, 260, 50, 250);
-    // Left side
-    ctx.bezierCurveTo(45, 200, 50, 100, 60, 50);
+    ctx.bezierCurveTo(50, 50, 40, 80, 40, 100);
+    ctx.bezierCurveTo(40, 200, 40, 250, 50, 270);
+    ctx.lineTo(150, 270);
+    ctx.bezierCurveTo(160, 250, 160, 200, 160, 100);
+    ctx.bezierCurveTo(160, 80, 150, 50, 140, 50);
+    ctx.closePath();
+    ctx.fillStyle = "#fff";
+    ctx.fill();
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Add cup shine
-    ctx.beginPath();
-    ctx.moveTo(70, 70);
-    ctx.bezierCurveTo(75, 100, 80, 150, 75, 200);
-    ctx.strokeStyle = "rgba(255,255,255,0.5)";
-    ctx.stroke();
+    // Draw milk tea gradient
+    const teaHeight = 200;
+    const gradient = ctx.createLinearGradient(50, 70, 50, 270);
 
-    // Calculate milk level based on ice level (more ice = more milk)
-    const milkLevel = 200 * (iceLevel / 100);
+    if (secondaryBase) {
+      // Mix two flavors
+      gradient.addColorStop(0, base.color);
+      gradient.addColorStop(0.5, secondaryBase.color);
+    } else {
+      gradient.addColorStop(0, base.color);
+    }
 
-    // Draw tea gradient
-    const gradient = ctx.createLinearGradient(50, 250 - milkLevel, 50, 250);
-    gradient.addColorStop(0, base.color);
-    gradient.addColorStop(1, "rgba(255,255,255,0.8)");
+    // Add milk gradient based on ice level
+    const milkOpacity = 0.3 + (iceLevel / 100) * 0.5;
+    gradient.addColorStop(1, `rgba(255, 255, 255, ${milkOpacity})`);
 
-    // Fill tea
     ctx.fillStyle = gradient;
-    ctx.fillRect(50, 250 - milkLevel, 100, milkLevel);
+    ctx.fillRect(45, 70, 110, teaHeight);
 
-    // Draw ice cubes with transparency
+    // Draw ice cubes
     if (iceLevel > 0) {
       const numIceCubes = Math.floor(iceLevel / 10);
       for (let i = 0; i < numIceCubes; i++) {
-        const x = 60 + Math.random() * 80;
-        const y = 70 + Math.random() * (milkLevel - 20);
+        const x = 55 + Math.random() * 90;
+        const y = 80 + Math.random() * 100;
 
-        // Draw a more interesting ice cube shape
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.random() * Math.PI);
+
+        // Ice cube with shine
+        ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.fillRect(-8, -8, 16, 16);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.strokeRect(-8, -8, 16, 16);
+
+        // Add shine
         ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + 15, y - 5);
-        ctx.lineTo(x + 20, y + 10);
-        ctx.lineTo(x + 5, y + 15);
-        ctx.closePath();
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.moveTo(-6, -6);
+        ctx.lineTo(-2, -2);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
         ctx.stroke();
+
+        ctx.restore();
       }
     }
 
-    // Draw boba pearls with better styling
+    // Draw boba pearls
     toppings.forEach((toppingId) => {
       const topping = TOPPINGS.find(t => t.id === toppingId);
       if (!topping) return;
 
-      const numPearls = 8;
-      for (let i = 0; i < numPearls; i++) {
-        const x = 60 + Math.random() * 80;
-        const y = 220 + Math.random() * 20;
+      for (let i = 0; i < 12; i++) {
+        const x = 55 + Math.random() * 90;
+        const y = 220 + Math.random() * 40;
 
-        // Draw a more appealing boba pearl
+        // Draw pearl
         ctx.beginPath();
         ctx.arc(x, y, 6, 0, Math.PI * 2);
-
-        // Add gradient to make pearls look rounder
         const pearlGradient = ctx.createRadialGradient(
           x - 2, y - 2, 1,
           x, y, 6
         );
         pearlGradient.addColorStop(0, "rgba(255,255,255,0.4)");
         pearlGradient.addColorStop(1, topping.color);
-
         ctx.fillStyle = pearlGradient;
         ctx.fill();
 
-        // Add shine to pearls
+        // Add shine
         ctx.beginPath();
         ctx.arc(x - 2, y - 2, 2, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(255,255,255,0.6)";
@@ -111,7 +134,79 @@ export function DrinkCanvas({ base, toppings, sweetness, iceLevel }: DrinkCanvas
       }
     });
 
-  }, [base, toppings, sweetness, iceLevel]);
+    // Draw kawaii face
+    const centerX = 100;
+    const centerY = 150;
+
+    // Eyes based on emotion
+    ctx.fillStyle = "#000";
+    if (emotion === 'excited') {
+      // Excited eyes (^_^)
+      ctx.beginPath();
+      ctx.moveTo(centerX - 20, centerY - 5);
+      ctx.quadraticCurveTo(centerX - 15, centerY - 15, centerX - 10, centerY - 5);
+      ctx.moveTo(centerX + 20, centerY - 5);
+      ctx.quadraticCurveTo(centerX + 15, centerY - 15, centerX + 10, centerY - 5);
+      ctx.stroke();
+    } else if (emotion === 'relaxed') {
+      // Relaxed eyes (- -)
+      ctx.fillRect(centerX - 20, centerY - 5, 10, 2);
+      ctx.fillRect(centerX + 10, centerY - 5, 10, 2);
+    } else {
+      // Happy eyes (• •)
+      ctx.beginPath();
+      ctx.arc(centerX - 15, centerY - 5, 3, 0, Math.PI * 2);
+      ctx.arc(centerX + 15, centerY - 5, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Cheeks
+    ctx.fillStyle = "rgba(255, 192, 203, 0.4)";
+    ctx.beginPath();
+    ctx.arc(centerX - 25, centerY + 5, 7, 0, Math.PI * 2);
+    ctx.arc(centerX + 25, centerY + 5, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mouth based on emotion
+    ctx.beginPath();
+    ctx.strokeStyle = "#000";
+    if (emotion === 'excited') {
+      // Big smile
+      ctx.arc(centerX, centerY + 5, 12, 0, Math.PI);
+    } else if (emotion === 'relaxed') {
+      // Small smile
+      ctx.arc(centerX, centerY + 5, 8, 0, Math.PI);
+    } else {
+      // Regular smile
+      ctx.arc(centerX, centerY + 5, 10, 0, Math.PI);
+    }
+    ctx.stroke();
+
+    // Draw lid and straw if ordered
+    if (isOrdered) {
+      // Lid
+      ctx.beginPath();
+      ctx.moveTo(40, 50);
+      ctx.bezierCurveTo(40, 40, 160, 40, 160, 50);
+      ctx.bezierCurveTo(160, 60, 40, 60, 40, 50);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+
+      // Straw
+      ctx.beginPath();
+      ctx.moveTo(95, 30);
+      ctx.lineTo(95, 150);
+      ctx.lineTo(105, 150);
+      ctx.lineTo(105, 30);
+      ctx.fillStyle = "#FF97A1";
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+    }
+
+  }, [base, secondaryBase, toppings, sweetness, iceLevel, emotion, isOrdered]);
 
   return (
     <motion.div

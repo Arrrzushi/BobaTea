@@ -19,6 +19,7 @@ export function TeaCustomizer() {
   const [iceLevel, setIceLevel] = useState(50);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isSpecialCombo, setIsSpecialCombo] = useState(false);
+  const [isOrdered, setIsOrdered] = useState(false);
   const { toast } = useToast();
 
   // Check for special combinations
@@ -39,7 +40,7 @@ export function TeaCustomizer() {
     }
   }, [primaryBase, secondaryBase, toppings]);
 
-  const handleSave = async () => {
+  const handleOrder = async () => {
     try {
       await apiRequest("POST", "/api/recipes", {
         name: secondaryBase 
@@ -52,14 +53,15 @@ export function TeaCustomizer() {
         creator: "user",
       });
 
+      setIsOrdered(true);
       toast({
-        title: "🎉 Recipe saved!",
-        description: "Your bubble tea creation has been saved.",
+        title: "🧋 Order Complete!",
+        description: "Enjoy your bubble tea creation!",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save recipe",
+        description: "Failed to place order",
         variant: "destructive",
       });
     }
@@ -79,6 +81,7 @@ export function TeaCustomizer() {
               toppings={toppings}
               sweetness={sweetness}
               iceLevel={iceLevel}
+              isOrdered={isOrdered}
             />
             {isSpecialCombo && (
               <motion.div
@@ -120,6 +123,7 @@ export function TeaCustomizer() {
                       } else {
                         setPrimaryBase(teaBase);
                       }
+                      setIsOrdered(false);
                     }}
                   >
                     {teaBase.name}
@@ -136,7 +140,10 @@ export function TeaCustomizer() {
               <h3 className="font-medium mb-3">Sweetness</h3>
               <Slider
                 value={[sweetness]}
-                onValueChange={(value) => setSweetness(value[0])}
+                onValueChange={(value) => {
+                  setSweetness(value[0]);
+                  setIsOrdered(false);
+                }}
                 max={100}
                 step={25}
                 className="py-4"
@@ -150,7 +157,10 @@ export function TeaCustomizer() {
               <h3 className="font-medium mb-3">Ice Level</h3>
               <Slider
                 value={[iceLevel]}
-                onValueChange={(value) => setIceLevel(value[0])}
+                onValueChange={(value) => {
+                  setIceLevel(value[0]);
+                  setIsOrdered(false);
+                }}
                 max={100}
                 step={25}
                 className="py-4"
@@ -165,14 +175,25 @@ export function TeaCustomizer() {
 
       <Ingredients
         selectedToppings={toppings}
-        onToppingsChange={setToppings}
+        onToppingsChange={(newToppings) => {
+          setToppings(newToppings);
+          setIsOrdered(false);
+        }}
       />
 
       <div className="flex gap-4">
-        <Button onClick={handleSave} className="flex-1">
-          Save Creation
+        <Button 
+          onClick={handleOrder} 
+          className="flex-1"
+          disabled={isOrdered}
+        >
+          {isOrdered ? "Ordered! 🧋" : "Order Now"}
         </Button>
-        <Button variant="outline" onClick={() => setIsShareOpen(true)} className="flex-1">
+        <Button 
+          variant="outline" 
+          onClick={() => setIsShareOpen(true)} 
+          className="flex-1"
+        >
           Share
         </Button>
       </div>
