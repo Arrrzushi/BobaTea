@@ -11,16 +11,17 @@ interface DrinkCanvasProps {
   isOrdered?: boolean;
 }
 
-export function DrinkCanvas({ 
-  base, 
+export function DrinkCanvas({
+  base,
   secondaryBase,
-  toppings, 
-  sweetness, 
+  toppings,
+  sweetness,
   iceLevel,
-  isOrdered = false 
+  isOrdered = false
 }: DrinkCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [emotion, setEmotion] = useState<'happy' | 'excited' | 'relaxed'>('happy');
+  const [bobaPositions, setBobaPositions] = useState<Array<{ x: number; y: number; phase: number }>>([]);
 
   useEffect(() => {
     // Update emotion based on sweetness and ice level
@@ -31,6 +32,14 @@ export function DrinkCanvas({
     } else {
       setEmotion('happy');
     }
+
+    // Initialize boba positions
+    const newBobaPositions = Array(10).fill(0).map(() => ({
+      x: 55 + Math.random() * 90,
+      y: 220 + Math.random() * 35,
+      phase: Math.random() * Math.PI * 2
+    }));
+    setBobaPositions(newBobaPositions);
   }, [sweetness, iceLevel]);
 
   useEffect(() => {
@@ -40,242 +49,253 @@ export function DrinkCanvas({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let animationFrameId: number;
+    let time = 0;
 
-    // Draw cup body (more bubble-like and cute)
-    ctx.beginPath();
-    ctx.moveTo(60, 50);
-    ctx.bezierCurveTo(50, 50, 40, 80, 40, 120);
-    ctx.lineTo(40, 240);
-    ctx.bezierCurveTo(40, 270, 160, 270, 160, 240);
-    ctx.lineTo(160, 120);
-    ctx.bezierCurveTo(160, 80, 150, 50, 140, 50);
-    ctx.closePath();
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    const draw = () => {
+      time += 0.05;
 
-    // Add cute cup shine
-    ctx.beginPath();
-    ctx.moveTo(55, 80);
-    ctx.quadraticCurveTo(65, 150, 55, 220);
-    ctx.strokeStyle = "rgba(255,255,255,0.5)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw tea with better gradient fill
-    const teaHeight = 190;
-    const teaTop = 70;
-
-    // Create gradient for tea
-    const gradient = ctx.createLinearGradient(45, teaTop, 45, teaTop + teaHeight);
-
-    if (secondaryBase) {
-      // Mix two flavors with a smooth gradient
-      gradient.addColorStop(0, base.color);
-      gradient.addColorStop(0.4, base.color);
-      gradient.addColorStop(0.6, secondaryBase.color);
-    } else {
-      gradient.addColorStop(0, base.color);
-    }
-
-    // Add milk gradient based on ice level
-    const milkOpacity = 0.4 + (iceLevel / 100) * 0.4;
-    gradient.addColorStop(1, `rgba(255, 255, 255, ${milkOpacity})`);
-
-    // Fill tea with gradient
-    ctx.fillStyle = gradient;
-    ctx.fillRect(45, teaTop, 110, teaHeight);
-
-    // Draw ice cubes with better shine
-    if (iceLevel > 0) {
-      const numIceCubes = Math.floor(iceLevel / 10);
-      for (let i = 0; i < numIceCubes; i++) {
-        const x = 55 + Math.random() * 90;
-        const y = 90 + Math.random() * 100;
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(Math.random() * Math.PI / 4);
-
-        // Ice cube with better shine
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-        ctx.fillRect(-8, -8, 16, 16);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.strokeRect(-8, -8, 16, 16);
-
-        // Add sparkle
+      // Draw straw first if ordered (behind the cup)
+      if (isOrdered) {
         ctx.beginPath();
-        ctx.moveTo(-6, -6);
-        ctx.lineTo(-2, -2);
-        ctx.moveTo(-4, -4);
-        ctx.lineTo(-4, -8);
-        ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+        ctx.moveTo(95, 10);
+        ctx.lineTo(95, 200);
+        ctx.lineTo(105, 200);
+        ctx.lineTo(105, 10);
+        ctx.fillStyle = "#FF97A1";
+        ctx.fill();
+        ctx.strokeStyle = "#FF6B81";
         ctx.lineWidth = 2;
         ctx.stroke();
-
-        ctx.restore();
       }
-    }
 
-    // Draw boba pearls with better shine
-    toppings.forEach((toppingId) => {
-      const topping = TOPPINGS.find(t => t.id === toppingId);
-      if (!topping) return;
+      // Draw rounder cup body (more like the reference)
+      ctx.beginPath();
+      ctx.moveTo(50, 50);
+      // Top curve
+      ctx.bezierCurveTo(50, 45, 150, 45, 150, 50);
+      // Right side
+      ctx.bezierCurveTo(160, 100, 160, 200, 150, 250);
+      // Bottom curve
+      ctx.bezierCurveTo(150, 260, 50, 260, 50, 250);
+      // Left side
+      ctx.bezierCurveTo(40, 200, 40, 100, 50, 50);
 
-      for (let i = 0; i < 12; i++) {
-        const x = 55 + Math.random() * 90;
-        const y = 220 + Math.random() * 35;
-
-        // Draw pearl with gradient
-        ctx.beginPath();
-        ctx.arc(x, y, 7, 0, Math.PI * 2);
-        const pearlGradient = ctx.createRadialGradient(
-          x - 2, y - 2, 1,
-          x, y, 7
-        );
-        pearlGradient.addColorStop(0, "rgba(255,255,255,0.6)");
-        pearlGradient.addColorStop(1, topping.color);
-        ctx.fillStyle = pearlGradient;
-        ctx.fill();
-
-        // Add shine to pearl
-        ctx.beginPath();
-        ctx.arc(x - 2, y - 2, 2, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,0.8)";
-        ctx.fill();
-      }
-    });
-
-    // Draw kawaii face (cuter version)
-    const centerX = 100;
-    const centerY = 140;
-
-    // Eyes based on emotion (bigger and cuter)
-    ctx.fillStyle = "#000";
-    if (emotion === 'excited') {
-      // Excited eyes (^ω^)
-      ctx.beginPath();
-      ctx.moveTo(centerX - 25, centerY - 5);
-      ctx.quadraticCurveTo(centerX - 15, centerY - 20, centerX - 5, centerY - 5);
-      ctx.moveTo(centerX + 25, centerY - 5);
-      ctx.quadraticCurveTo(centerX + 15, centerY - 20, centerX + 5, centerY - 5);
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Add cute sparkles
-      ctx.fillStyle = "#FFD700";
-      ctx.beginPath();
-      ctx.arc(centerX - 30, centerY - 15, 2, 0, Math.PI * 2);
-      ctx.arc(centerX + 30, centerY - 15, 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (emotion === 'relaxed') {
-      // Relaxed eyes (｡◕‿◕｡)
-      ctx.beginPath();
-      ctx.arc(centerX - 15, centerY - 5, 5, 0, Math.PI * 2);
-      ctx.arc(centerX + 15, centerY - 5, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(centerX - 15, centerY - 7, 2, 0, Math.PI * 2);
-      ctx.arc(centerX + 15, centerY - 7, 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      // Happy eyes (◕‿◕)
-      ctx.beginPath();
-      ctx.arc(centerX - 15, centerY - 5, 8, 0, Math.PI * 2);
-      ctx.arc(centerX + 15, centerY - 5, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(centerX - 13, centerY - 7, 3, 0, Math.PI * 2);
-      ctx.arc(centerX + 17, centerY - 7, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Rosy cheeks (more visible)
-    ctx.fillStyle = "rgba(255, 182, 193, 0.6)";
-    ctx.beginPath();
-    ctx.arc(centerX - 30, centerY + 10, 10, 0, Math.PI * 2);
-    ctx.arc(centerX + 30, centerY + 10, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Mouth based on emotion (cuter)
-    ctx.beginPath();
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    if (emotion === 'excited') {
-      // Big happy mouth (◠‿◠)
-      ctx.beginPath();
-      ctx.moveTo(centerX - 20, centerY + 10);
-      ctx.quadraticCurveTo(centerX, centerY + 25, centerX + 20, centerY + 10);
-      ctx.stroke();
-
-      // Add cute tongue
-      ctx.beginPath();
-      ctx.moveTo(centerX - 5, centerY + 15);
-      ctx.quadraticCurveTo(centerX, centerY + 20, centerX + 5, centerY + 15);
-      ctx.strokeStyle = "#FF9999";
-      ctx.stroke();
-    } else if (emotion === 'relaxed') {
-      // Gentle smile (˘︶˘)
-      ctx.beginPath();
-      ctx.moveTo(centerX - 15, centerY + 10);
-      ctx.quadraticCurveTo(centerX, centerY + 15, centerX + 15, centerY + 10);
-      ctx.stroke();
-    } else {
-      // Sweet smile (◡‿◡)
-      ctx.beginPath();
-      ctx.moveTo(centerX - 15, centerY + 10);
-      ctx.quadraticCurveTo(centerX, centerY + 20, centerX + 15, centerY + 10);
-      ctx.stroke();
-    }
-
-    // Draw lid and straw if ordered
-    if (isOrdered) {
-      // Cute domed lid
-      ctx.beginPath();
-      ctx.moveTo(40, 50);
-      ctx.bezierCurveTo(40, 35, 100, 25, 160, 50);
-      ctx.bezierCurveTo(160, 65, 40, 65, 40, 50);
       ctx.fillStyle = "#fff";
       ctx.fill();
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Kawaii straw with heart pattern
+      // Add cup shine
       ctx.beginPath();
-      ctx.moveTo(95, 30);
-      ctx.lineTo(95, 150);
-      ctx.lineTo(105, 150);
-      ctx.lineTo(105, 30);
-      ctx.fillStyle = "#FF97A1";
-      ctx.fill();
-      ctx.strokeStyle = "#FF6B81";
-      ctx.lineWidth = 2;
+      ctx.moveTo(60, 70);
+      ctx.quadraticCurveTo(70, 150, 60, 230);
+      ctx.strokeStyle = "rgba(255,255,255,0.6)";
+      ctx.lineWidth = 5;
       ctx.stroke();
 
-      // Add cute heart on straw
-      ctx.beginPath();
-      ctx.moveTo(100, 60);
-      ctx.bezierCurveTo(95, 55, 90, 65, 100, 70);
-      ctx.bezierCurveTo(110, 65, 105, 55, 100, 60);
-      ctx.fillStyle = "#FF6B81";
-      ctx.fill();
-    }
+      // Draw tea with better gradient fill
+      const teaTop = 60;
+      const teaHeight = 180;
+      const teaGradient = ctx.createLinearGradient(50, teaTop, 50, teaTop + teaHeight);
 
-  }, [base, secondaryBase, toppings, sweetness, iceLevel, emotion, isOrdered]);
+      if (secondaryBase) {
+        // Two-flavor gradient
+        teaGradient.addColorStop(0, base.color);
+        teaGradient.addColorStop(0.4, base.color);
+        teaGradient.addColorStop(0.6, secondaryBase.color);
+        teaGradient.addColorStop(1, secondaryBase.color);
+      } else {
+        teaGradient.addColorStop(0, base.color);
+        teaGradient.addColorStop(1, base.color);
+      }
+
+      // Fill tea with gradient
+      ctx.fillStyle = teaGradient;
+      ctx.fillRect(50, teaTop, 100, teaHeight);
+
+      // Add milk overlay based on ice level
+      const milkGradient = ctx.createLinearGradient(50, teaTop, 50, teaTop + teaHeight);
+      milkGradient.addColorStop(0, "transparent");
+      milkGradient.addColorStop(1, `rgba(255, 255, 255, ${iceLevel / 100 * 0.8})`);
+      ctx.fillStyle = milkGradient;
+      ctx.fillRect(50, teaTop, 100, teaHeight);
+
+      // Animated boba pearls
+      toppings.forEach((toppingId) => {
+        const topping = TOPPINGS.find(t => t.id === toppingId);
+        if (!topping) return;
+
+        bobaPositions.forEach((boba) => {
+          const floatOffset = Math.sin(time + boba.phase) * 3;
+
+          // Draw boba pearl
+          ctx.beginPath();
+          ctx.arc(boba.x, boba.y + floatOffset, 8, 0, Math.PI * 2);
+          const pearlGradient = ctx.createRadialGradient(
+            boba.x - 2, boba.y + floatOffset - 2, 1,
+            boba.x, boba.y + floatOffset, 8
+          );
+          pearlGradient.addColorStop(0, "rgba(255,255,255,0.7)");
+          pearlGradient.addColorStop(1, topping.color);
+          ctx.fillStyle = pearlGradient;
+          ctx.fill();
+
+          // Add shine
+          ctx.beginPath();
+          ctx.arc(boba.x - 3, boba.y + floatOffset - 3, 3, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.8)";
+          ctx.fill();
+        });
+      });
+
+      // Draw kawaii face
+      const centerX = 100;
+      const centerY = 140;
+
+      // More kawaii eyes based on emotion
+      if (emotion === 'excited') {
+        // Excited eyes (⌒▽⌒)
+        ctx.beginPath();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        // Left eye
+        ctx.moveTo(centerX - 25, centerY - 5);
+        ctx.bezierCurveTo(
+          centerX - 20, centerY - 15,
+          centerX - 10, centerY - 15,
+          centerX - 5, centerY - 5
+        );
+        // Right eye
+        ctx.moveTo(centerX + 25, centerY - 5);
+        ctx.bezierCurveTo(
+          centerX + 20, centerY - 15,
+          centerX + 10, centerY - 15,
+          centerX + 5, centerY - 5
+        );
+        ctx.stroke();
+
+        // Sparkles
+        ctx.fillStyle = "#FFD700";
+        for (let i = 0; i < 4; i++) {
+          const angle = (i * Math.PI / 2) + time;
+          const x = centerX + Math.cos(angle) * 30;
+          const y = centerY - 10 + Math.sin(angle) * 5;
+          ctx.beginPath();
+          ctx.arc(x, y, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (emotion === 'relaxed') {
+        // Relaxed eyes (◡‿◡✿)
+        ctx.beginPath();
+        ctx.arc(centerX - 15, centerY - 8, 6, Math.PI, 0, true);
+        ctx.arc(centerX + 15, centerY - 8, 6, Math.PI, 0, true);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Add flower decoration
+        ctx.beginPath();
+        ctx.arc(centerX + 30, centerY - 10, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#FFB7C5";
+        ctx.fill();
+      } else {
+        // Happy eyes (｡◕‿◕｡)
+        ctx.beginPath();
+        ctx.arc(centerX - 15, centerY - 5, 10, 0, Math.PI * 2);
+        ctx.arc(centerX + 15, centerY - 5, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "#000";
+        ctx.fill();
+
+        // Eye shine
+        ctx.beginPath();
+        ctx.arc(centerX - 12, centerY - 8, 4, 0, Math.PI * 2);
+        ctx.arc(centerX + 18, centerY - 8, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+      }
+
+      // Rosy cheeks (more kawaii)
+      ctx.beginPath();
+      ctx.arc(centerX - 30, centerY + 10, 12, 0, Math.PI * 2);
+      ctx.arc(centerX + 30, centerY + 10, 12, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 182, 193, 0.5)";
+      ctx.fill();
+
+      // Mouth based on emotion
+      ctx.beginPath();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      if (emotion === 'excited') {
+        // Big happy mouth (∪ω∪)
+        ctx.moveTo(centerX - 20, centerY + 15);
+        ctx.bezierCurveTo(
+          centerX - 10, centerY + 25,
+          centerX + 10, centerY + 25,
+          centerX + 20, centerY + 15
+        );
+        ctx.stroke();
+
+        // Add cute fang
+        ctx.beginPath();
+        ctx.moveTo(centerX + 5, centerY + 15);
+        ctx.lineTo(centerX + 8, centerY + 19);
+        ctx.lineTo(centerX + 11, centerY + 15);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.stroke();
+      } else if (emotion === 'relaxed') {
+        // Sleepy smile (ᴗ.ᴗ)
+        ctx.moveTo(centerX - 15, centerY + 15);
+        ctx.quadraticCurveTo(centerX, centerY + 18, centerX + 15, centerY + 15);
+      } else {
+        // Sweet smile (◡‿◡)
+        ctx.moveTo(centerX - 15, centerY + 12);
+        ctx.quadraticCurveTo(centerX, centerY + 22, centerX + 15, centerY + 12);
+      }
+      ctx.stroke();
+
+      // Draw lid if ordered
+      if (isOrdered) {
+        // Domed lid
+        ctx.beginPath();
+        ctx.moveTo(50, 50);
+        ctx.bezierCurveTo(50, 30, 150, 30, 150, 50);
+        ctx.bezierCurveTo(150, 70, 50, 70, 50, 50);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Add heart decoration on straw
+        ctx.beginPath();
+        ctx.moveTo(100, 40);
+        ctx.bezierCurveTo(95, 35, 85, 45, 100, 55);
+        ctx.bezierCurveTo(115, 45, 105, 35, 100, 40);
+        ctx.fillStyle = "#FF6B81";
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [base, secondaryBase, toppings, sweetness, iceLevel, emotion, isOrdered, bobaPositions]);
 
   return (
     <motion.div
-      className="relative"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      className="relative w-full"
+      initial={{ y: 0 }}
+      animate={{ y: [-5, 5, -5] }}
+      transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
     >
       <canvas
         ref={canvasRef}
