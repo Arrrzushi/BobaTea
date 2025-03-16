@@ -1,8 +1,8 @@
 # 🍵 BobaTea Café  
 Your go-to virtual boba ordering app! 🎉  
 
-🚀 **Live Demo:** [BobaTea Café](https://bobacafe.netlify.app/)  
-🌐 **Backend API:** [BobaTea API](https://bobatea.onrender.com/)  
+🚀 **Live Demo:** [BobaTea Café](https://bobatea.onrender.com/) 
+🌐 **Backend API:** [BobaTea API](https://bobacafe.netlify.app/)  
 
 ---
 
