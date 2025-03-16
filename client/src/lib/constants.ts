@@ -36,12 +36,10 @@ export const SPECIAL_COMBINATIONS = [
 ];
 
 export const ACHIEVEMENTS = [
-  { id: "first_drink", name: "First Creation", description: "Create your first bubble tea" },
-  { id: "experimenter", name: "Experimenter", description: "Try all tea bases" },
-  { id: "popular", name: "Popular Creation", description: "Get 5 likes on your recipe" },
-  { id: "master", name: "Boba Master", description: "Create 10 unique combinations" },
-  { id: "mixologist", name: "Tea Mixologist", description: "Create a special combination" },
-  { id: "collector", name: "Topping Collector", description: "Use all available toppings" }
+  { id: "first_drink", name: "Welcome to Boba Shop! 🍡✨", description: "Choose your perfect blend of creamy milk and boba flavors, then watch your dream drink come to life! 💕🥤" },
+  { id: "experimenter", name: "Stay Connected!<3", description:  "Like what you see? Follow my journey and explore more fun projects!" },
+  { id: "popular", name: "HEY?", description: "Dont forget to click on Order Now to get your order placed <3" },
+
 ];
 
 export const SWEETNESS_LEVELS = [0, 25, 50, 75, 100];

@@ -112,7 +112,7 @@ export function TeaCustomizer() {
                 ease: "easeOut"
               }}
             >
-              <span className="text-2xl">🎉</span>
+              <span className="text-2xl">🎀</span>
             </motion.div>
           ))}
         </motion.div>

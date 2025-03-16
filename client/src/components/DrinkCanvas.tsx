@@ -71,18 +71,13 @@ export function DrinkCanvas({
         ctx.stroke();
       }
 
-      // Draw rounder cup body (more like the reference)
+      // Draw rounder cup body
       ctx.beginPath();
       ctx.moveTo(50, 50);
-      // Top curve
       ctx.bezierCurveTo(50, 45, 150, 45, 150, 50);
-      // Right side
       ctx.bezierCurveTo(160, 100, 160, 200, 150, 250);
-      // Bottom curve
       ctx.bezierCurveTo(150, 260, 50, 260, 50, 250);
-      // Left side
       ctx.bezierCurveTo(40, 200, 40, 100, 50, 50);
-
       ctx.fillStyle = "#fff";
       ctx.fill();
       ctx.strokeStyle = "#000";
@@ -97,13 +92,12 @@ export function DrinkCanvas({
       ctx.lineWidth = 5;
       ctx.stroke();
 
-      // Draw tea with better gradient fill
+      // Draw tea with gradient fill
       const teaTop = 60;
       const teaHeight = 180;
       const teaGradient = ctx.createLinearGradient(50, teaTop, 50, teaTop + teaHeight);
 
       if (secondaryBase) {
-        // Two-flavor gradient
         teaGradient.addColorStop(0, base.color);
         teaGradient.addColorStop(0.4, base.color);
         teaGradient.addColorStop(0.6, secondaryBase.color);
@@ -113,7 +107,6 @@ export function DrinkCanvas({
         teaGradient.addColorStop(1, base.color);
       }
 
-      // Fill tea with gradient
       ctx.fillStyle = teaGradient;
       ctx.fillRect(50, teaTop, 100, teaHeight);
 
@@ -156,78 +149,54 @@ export function DrinkCanvas({
       const centerX = 100;
       const centerY = 140;
 
-      // More kawaii eyes based on emotion
+      // Redesigned kawaii eyes based on emotion
+      ctx.fillStyle = "#000"; // Default eye color
+      ctx.strokeStyle = "#000"; // Default stroke color
+      ctx.lineWidth = 2;
+
       if (emotion === 'excited') {
-        // Excited eyes (⌒▽⌒)
+        // Excited eyes (☆▽☆)
         ctx.beginPath();
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 2;
-        // Left eye
-        ctx.moveTo(centerX - 25, centerY - 5);
-        ctx.bezierCurveTo(
-          centerX - 20, centerY - 15,
-          centerX - 10, centerY - 15,
-          centerX - 5, centerY - 5
-        );
-        // Right eye
-        ctx.moveTo(centerX + 25, centerY - 5);
-        ctx.bezierCurveTo(
-          centerX + 20, centerY - 15,
-          centerX + 10, centerY - 15,
-          centerX + 5, centerY - 5
-        );
-        ctx.stroke();
-
-        // Sparkles
-        ctx.fillStyle = "#FFD700";
-        for (let i = 0; i < 4; i++) {
-          const angle = (i * Math.PI / 2) + time;
-          const x = centerX + Math.cos(angle) * 30;
-          const y = centerY - 10 + Math.sin(angle) * 5;
-          ctx.beginPath();
-          ctx.arc(x, y, 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.arc(centerX - 25, centerY - 5, 10, 0, Math.PI * 2); // Left eye
+        ctx.arc(centerX + 25, centerY - 5, 10, 0, Math.PI * 2); // Right eye
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX - 25, centerY - 5, 4, 0, Math.PI * 2); // Left sparkle
+        ctx.arc(centerX + 25, centerY - 5, 4, 0, Math.PI * 2); // Right sparkle
+        ctx.fillStyle = "#FFD700"; // Sparkle color
+        ctx.fill();
+        ctx.fillStyle = "#000"; // Reset eye color
       } else if (emotion === 'relaxed') {
-        // Relaxed eyes (◡‿◡✿)
+        // Relaxed eyes (◕‿◕)
         ctx.beginPath();
-        ctx.arc(centerX - 15, centerY - 8, 6, Math.PI, 0, true);
-        ctx.arc(centerX + 15, centerY - 8, 6, Math.PI, 0, true);
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Add flower decoration
-        ctx.beginPath();
-        ctx.arc(centerX + 30, centerY - 10, 4, 0, Math.PI * 2);
-        ctx.fillStyle = "#FFB7C5";
+        ctx.arc(centerX - 15, centerY - 8, 8, 0, Math.PI, true); // Left eye
+        ctx.arc(centerX + 15, centerY - 8, 8, 0, Math.PI, true); // Right eye
         ctx.fill();
       } else {
         // Happy eyes (｡◕‿◕｡)
         ctx.beginPath();
-        ctx.arc(centerX - 15, centerY - 5, 10, 0, Math.PI * 2);
-        ctx.arc(centerX + 15, centerY - 5, 10, 0, Math.PI * 2);
-        ctx.fillStyle = "#000";
-        ctx.fill();
-
-        // Eye shine
-        ctx.beginPath();
-        ctx.arc(centerX - 12, centerY - 8, 4, 0, Math.PI * 2);
-        ctx.arc(centerX + 18, centerY - 8, 4, 0, Math.PI * 2);
-        ctx.fillStyle = "#fff";
+        ctx.arc(centerX - 15, centerY - 5, 10, 0, Math.PI * 2); // Left eye
+        ctx.arc(centerX + 15, centerY - 5, 10, 0, Math.PI * 2); // Right eye
         ctx.fill();
       }
 
-      // Rosy cheeks (more kawaii)
+      // Eye shine
       ctx.beginPath();
-      ctx.arc(centerX - 30, centerY + 10, 12, 0, Math.PI * 2);
-      ctx.arc(centerX + 30, centerY + 10, 12, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255, 182, 193, 0.5)";
+      ctx.arc(centerX - 12, centerY - 8, 4, 0, Math.PI * 2); // Left eye shine
+      ctx.arc(centerX + 18, centerY - 8, 4, 0, Math.PI * 2); // Right eye shine
+      ctx.fillStyle = "#fff"; // Shine color
+      ctx.fill();
+
+      // Rosy cheeks (moved higher, just below the eyes)
+      ctx.beginPath();
+      ctx.arc(centerX - 30, centerY - 5, 8, 0, Math.PI * 2); // Left cheek
+      ctx.arc(centerX + 30, centerY - 5, 8, 0, Math.PI * 2); // Right cheek
+      ctx.fillStyle = "rgba(255, 182, 193, 0.7)"; // Blush color
       ctx.fill();
 
       // Mouth based on emotion
       ctx.beginPath();
-      ctx.strokeStyle = "#000";
+      ctx.strokeStyle = "#000"; // Mouth stroke color
       ctx.lineWidth = 2;
       if (emotion === 'excited') {
         // Big happy mouth (∪ω∪)
@@ -244,7 +213,7 @@ export function DrinkCanvas({
         ctx.moveTo(centerX + 5, centerY + 15);
         ctx.lineTo(centerX + 8, centerY + 19);
         ctx.lineTo(centerX + 11, centerY + 15);
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = "#fff"; // Fang color
         ctx.fill();
         ctx.stroke();
       } else if (emotion === 'relaxed') {
@@ -265,9 +234,9 @@ export function DrinkCanvas({
         ctx.moveTo(50, 50);
         ctx.bezierCurveTo(50, 30, 150, 30, 150, 50);
         ctx.bezierCurveTo(150, 70, 50, 70, 50, 50);
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = "#fff"; // Lid color
         ctx.fill();
-        ctx.strokeStyle = "#000";
+        ctx.strokeStyle = "#000"; // Lid stroke color
         ctx.lineWidth = 3;
         ctx.stroke();
 
@@ -276,7 +245,7 @@ export function DrinkCanvas({
         ctx.moveTo(100, 40);
         ctx.bezierCurveTo(95, 35, 85, 45, 100, 55);
         ctx.bezierCurveTo(115, 45, 105, 35, 100, 40);
-        ctx.fillStyle = "#FF6B81";
+        ctx.fillStyle = "#FF6B81"; // Heart color
         ctx.fill();
       }
 

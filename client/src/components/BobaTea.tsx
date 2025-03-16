@@ -20,6 +20,7 @@ export function BobaTea({
 }: BobaTeaProps) {
   // Determine emotion based on levels
   const getEmotion = () => {
+    if (sweetness > 90 && iceLevel > 90) return "dramatic"; // New dramatic emotion
     if (sweetness > 75 && iceLevel > 75) return "super-excited";
     if (sweetness > 75) return "sweet-happy";
     if (iceLevel > 75) return "ice-happy";
@@ -59,61 +60,84 @@ export function BobaTea({
         {/* Kawaii Face */}
         <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 z-30">
           {/* Eyes based on emotion */}
-          {emotion === "super-excited" ? (
-            <div className="flex flex-col items-center">
-              <div className="flex gap-8">
-                <div className="w-4 h-4">✨</div>
-                <div className="w-4 h-4">✨</div>
-              </div>
+          {emotion === "dramatic" ? (
+            // Dramatic star eyes (★ω★)
+            <div className="flex gap-8">
+              <div className="w-4 h-4 text-yellow-400">★</div>
+              <div className="w-4 h-4 text-yellow-400">★</div>
+            </div>
+          ) : emotion === "super-excited" ? (
+            // Super excited sparkly eyes (≧▽≦)
+            <div className="flex gap-8">
+              <div className="w-4 h-4 text-yellow-400">✨</div>
+              <div className="w-4 h-4 text-yellow-400">✨</div>
             </div>
           ) : emotion === "sweet-happy" ? (
+            // Sweet happy eyes (｡◕‿◕｡)
             <div className="flex gap-8">
-              <div className="w-4 h-4">♡</div>
-              <div className="w-4 h-4">♡</div>
+              <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              </div>
+              <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              </div>
             </div>
           ) : emotion === "ice-happy" ? (
+            // Ice happy eyes (❄️❄️)
             <div className="flex gap-8">
               <div className="w-4 h-4">❄️</div>
               <div className="w-4 h-4">❄️</div>
             </div>
           ) : emotion === "sleepy" ? (
+            // Sleepy eyes (￣ω￣)
             <div className="flex gap-8">
               <div className="w-3 h-px bg-black transform -translate-y-1 rotate-12"></div>
               <div className="w-3 h-px bg-black transform -translate-y-1 -rotate-12"></div>
             </div>
           ) : (
+            // Default happy eyes (｡◕‿◕｡)
             <div className="flex gap-8">
-              <div className="w-3 h-3 bg-black rounded-full flex items-center justify-center">
-                <div className="w-1 h-1 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
               </div>
-              <div className="w-3 h-3 bg-black rounded-full flex items-center justify-center">
-                <div className="w-1 h-1 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
+              <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full transform translate-x-[1px] -translate-y-[1px]"></div>
               </div>
             </div>
           )}
 
           {/* Mouth based on emotion */}
           <div className="mt-2">
-            {emotion === "super-excited" ? (
+            {emotion === "dramatic" ? (
+              // Dramatic mouth with tongue (＾▽＾)
               <div className="w-8 h-6 flex items-center justify-center">
                 <div className="w-6 h-4 border-b-4 border-black rounded-lg"></div>
-                <div className="absolute w-2 h-2 bg-pink-400 rounded-full transform translate-y-1"></div>
+                <div className="absolute w-2 h-2 bg-pink-400 rounded-full transform translate-y-2"></div>
+              </div>
+            ) : emotion === "super-excited" ? (
+              // Super excited mouth (∪ω∪)
+              <div className="w-8 h-6 flex items-center justify-center">
+                <div className="w-6 h-4 border-b-4 border-black rounded-lg"></div>
               </div>
             ) : emotion === "sweet-happy" ? (
+              // Sweet happy mouth (◡‿◡)
               <div className="w-6 h-4 border-b-2 border-black mx-auto" style={{ borderRadius: "0 0 100% 100%" }}></div>
             ) : emotion === "ice-happy" ? (
+              // Ice happy mouth (❄️)
               <div className="w-6 h-3 border-2 border-black mx-auto rounded-full"></div>
             ) : emotion === "sleepy" ? (
+              // Sleepy mouth (ᴗ.ᴗ)
               <div className="w-4 h-1 border-b-2 border-black mx-auto"></div>
             ) : (
+              // Default happy mouth (◡‿◡)
               <div className="w-6 h-3 border-b-2 border-black mx-auto" style={{ borderRadius: "0 0 100% 100%" }}></div>
             )}
           </div>
 
           {/* Blush */}
           <div className="flex gap-8 mt-2">
-            <div className="w-4 h-2 bg-pink-200 rounded-full opacity-60"></div>
-            <div className="w-4 h-2 bg-pink-200 rounded-full opacity-60"></div>
+            <div className="w-4 h-2 bg-pink-400 rounded-full opacity-60"></div>
+            <div className="w-4 h-2 bg-pink-400 rounded-full opacity-60"></div>
           </div>
         </div>
 

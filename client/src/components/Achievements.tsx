@@ -11,7 +11,7 @@ export function Achievements() {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Achievements</h2>
+      <h2 className="text-xl font-semibold mb-4">Lil Intro maybe :3</h2>
       <div className="space-y-4">
         {ACHIEVEMENTS.map((achievement, index) => {
           const isUnlocked = achievements?.some(
