@@ -53,10 +53,10 @@ app.use((req, res, next) => {
         serveStatic(app);
     }
 
-    // Change the port if needed
+    // ✅ Fix for Render: Bind to 0.0.0.0
     const port = process.env.PORT || 5000;
 
-    server.listen(port, "127.0.0.1", () => {
-        log(`Serving on port ${port}`);
+    server.listen(port, "0.0.0.0", () => {
+        log(`🚀 Server running on port ${port}`);
     });
 })();
